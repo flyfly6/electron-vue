@@ -151,10 +151,20 @@
     {{/testing}}
     "multispinner": "^0.2.1",
     "node-loader": "^1.0.2",
-    {{#if usesass}}
+    {{#useCssPreProcessor}}
+    {{#if_eq cssPreProcessor 'sass'}}
     "node-sass": "^5.0.0",
     "sass-loader": "^10.1.0",
-    {{/if}}
+    {{/if_eq}}
+    {{#if_eq cssPreProcessor 'less'}}
+    "less": "^4.0.0",
+    "less-loader": "^7.1.0",
+    {{/if_eq}}
+    {{#if_eq cssPreProcessor 'stylus'}}
+    "stylus": "^0.54.8",
+    "stylus-loader": "^4.3.1",
+    {{/if_eq}}
+    {{/useCssPreProcessor}}
     "postcss-import": "^14.0.0",
     "postcss-loader": "^4.1.0",
     "postcss-url": "^10.1.1",

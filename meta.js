@@ -71,10 +71,33 @@ module.exports = {
       message: 'Project description',
       default: 'An electron-vue project'
     },
-    usesass: {
-        type: 'confirm',
-        message: 'Use Sass / Scss?',
-        required: true
+    useCssPreProcessor: {
+      type: 'confirm',
+      message: 'Add support for CSS pre-processors like Sass, less or Stylus?',
+      required: true,
+      default: true
+    },
+    cssPreProcessor: {
+      when: 'useCssPreProcessor',
+      type: 'list',
+      message: 'Pick a CSS pre-processor:',
+      choices: [
+        {
+          name: 'Sass/SCSS',
+          value: 'sass',
+          short: 'Sass/SCSS'
+        },
+        {
+          name: 'Less',
+          value: 'less',
+          short: 'Less'
+        },
+        {
+          name: 'Stylus',
+          value: 'stylus',
+          short: 'Stylus'
+        }
+      ]
     },
     plugins: {
       type: 'checkbox',

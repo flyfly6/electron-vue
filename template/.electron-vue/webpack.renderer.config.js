@@ -11,6 +11,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
+const vueLoaderConfig = require('./vue-loader.conf')
+const utils = require('./utils')
 
 /**
  * List of node_modules to include in webpack bundle
@@ -31,6 +33,11 @@ let rendererConfig = {
   ],
   module: {
     rules: [
+      ...utils.styleLoaders({
+        sourceMap: process.env.NODE_ENV !== 'production',
+        extract: true,
+        usePostCSS: true
+      }),
 {{#if eslint}}
       {
         test: /\.(js|vue)$/,
@@ -44,28 +51,6 @@ let rendererConfig = {
         }
       },
 {{/if}}
-    {{#if usesass}}
-      {
-        test: /\.scss$/,
-        use: ['vue-style-loader', 'css-loader', 'sass-loader']
-      },
-      {
-        test: /\.sass$/,
-        use: ['vue-style-loader', 'css-loader', 'sass-loader?indentedSyntax']
-      },
-    {{/if}}
-      {
-        test: /\.less$/,
-        use: ['vue-style-loader', 'css-loader', 'less-loader']
-      },
-      {
-        test: /\.css$/,
-        use: ['vue-style-loader', 'css-loader']
-      },
-      {
-        test: /\.html$/,
-        use: 'vue-html-loader'
-      },
       {
         test: /\.js$/,
         use: 'babel-loader',
@@ -77,16 +62,9 @@ let rendererConfig = {
       },
       {
         test: /\.vue$/,
-        use: {
+          use: {
           loader: 'vue-loader',
-          options: {
-            extractCSS: process.env.NODE_ENV === 'production',
-            loaders: {
-              sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1',
-              scss: 'vue-style-loader!css-loader!sass-loader',
-              less: 'vue-style-loader!css-loader!less-loader'
-            }
-          }
+            options: vueLoaderConfig
         }
       },
       {
@@ -95,7 +73,8 @@ let rendererConfig = {
           loader: 'url-loader',
           query: {
             limit: 10000,
-            name: 'imgs/[name]--[folder].[ext]'
+            name: 'imgs/[name]--[folder].[ext]',
+            esModule: false,
           }
         }
       },
@@ -104,7 +83,8 @@ let rendererConfig = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: 'media/[name]--[folder].[ext]'
+          name: 'media/[name]--[folder].[ext]',
+          esModule: false,
         }
       },
       {
@@ -113,7 +93,8 @@ let rendererConfig = {
           loader: 'url-loader',
           query: {
             limit: 10000,
-            name: 'fonts/[name]--[folder].[ext]'
+            name: 'fonts/[name]--[folder].[ext]',
+            esModule: false,
           }
         }
       }
@@ -125,7 +106,12 @@ let rendererConfig = {
   },
   plugins: [
     new VueLoaderPlugin(),
-    new MiniCssExtractPlugin({filename: 'styles.css'}),
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: utils.assetsPath('css/[name]/[name].css?[contenthash:8]'),
+      chunkFilename: utils.assetsPath('css/chunk/[name].css?[contenthash:8]')
+    }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
@@ -134,13 +120,17 @@ let rendererConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
+      inject: true,
       nodeModules: process.env.NODE_ENV !== 'production'
         ? path.resolve(__dirname, '../node_modules')
         : false
     }),
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.HotModuleReplacementPlugin()
   ],
+  optimization: {
+    namedModules: true,
+    noEmitOnErrors: true
+  },
   output: {
     filename: '[name].js',
     libraryTarget: 'commonjs2',
@@ -151,7 +141,7 @@ let rendererConfig = {
       '@': path.join(__dirname, '../src/renderer'),
       'vue$': 'vue/dist/vue.esm.js'
     },
-    extensions: ['.js', '.vue', '.json', '.css', '.node']
+    extensions: ['.js', '.vue', '.json', '.node']
   },
   target: 'electron-renderer'
 }

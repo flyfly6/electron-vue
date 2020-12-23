@@ -1,24 +1,30 @@
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
   parserOptions: {
-    sourceType: 'module'
+    parser: 'babel-eslint'
   },
   env: {
     browser: true,
     node: true
   },
   {{#if_eq eslintConfig 'standard'}}
-  extends: 'standard',
+  extends: [
+    'standard',
+    'plugin:vue/essential'
+  ],
   {{/if_eq}}
   {{#if_eq eslintConfig 'airbnb'}}
-  extends: 'airbnb-base',
+  extends: [
+    'airbnb-base',
+    'plugin:vue/essential'
+  ],
   {{/if_eq}}
   globals: {
     __static: true
   },
   plugins: [
-    'html'
+    'html',
+    'vue'
   ],
   'rules': {
     {{#if_eq eslintConfig 'standard'}}
